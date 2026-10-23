@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
+
+import pytest
 
 from repo_graph_mcp.graph import Graph
 from tests.conftest import ids
+
+pytestmark = pytest.mark.skipif(
+    importlib.util.find_spec("tree_sitter") is None, reason="typescript extra not installed"
+)
 
 
 def test_callers_across_es_imports_and_require(tsgraph: Graph) -> None:

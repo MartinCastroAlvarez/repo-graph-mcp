@@ -27,7 +27,12 @@ def _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.fixture
 def pyrepo(tmp_path: Path) -> Path:
-    return copy_fixture("pyproj", tmp_path)
+    root = copy_fixture("pyproj", tmp_path)
+    # Files the fixture's .gitignore excludes (so git cannot ship them): made here.
+    (root / "generated").mkdir()
+    (root / "generated" / "gen.py").write_text("def generated():\n    pass\n")
+    (root / "shop" / "scratch.tmp.py").write_text("def scratch():\n    pass\n")
+    return root
 
 
 @pytest.fixture
