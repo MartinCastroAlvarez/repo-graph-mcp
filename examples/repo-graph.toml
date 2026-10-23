@@ -1,0 +1,22 @@
+# .repo-graph.toml — or the same keys under [tool.repo-graph] in pyproject.toml.
+# Unknown keys are errors.
+
+# gitignore-style globs to skip, on top of .gitignore
+exclude = ["migrations/**", "**/fixtures/**", "vendor/**"]
+
+# "python" and/or "typescript" (typescript also covers .tsx .js .jsx .mjs .cjs)
+languages = ["python", "typescript"]
+
+# files larger than this are skipped (REPO_GRAPH_MAX_FILE_BYTES overrides)
+max_file_bytes = 1000000
+
+# the walk stops after this many files (REPO_GRAPH_MAX_FILES overrides)
+max_files = 20000
+
+# keep first docstring / JSDoc lines in answers; false keeps comments out entirely
+docs = true
+
+respect_gitignore = true
+
+# where the graph lives (REPO_GRAPH_DB and --db override)
+db = ".repo-graph/graph.db"

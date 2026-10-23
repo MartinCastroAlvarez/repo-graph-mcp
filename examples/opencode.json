@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "repo-graph": {
+      "type": "local",
+      "command": ["repo-graph", "serve"],
+      "enabled": true
+    }
+  }
+}

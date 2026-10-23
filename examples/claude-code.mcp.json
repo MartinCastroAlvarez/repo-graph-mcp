@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "repo-graph": {
+      "type": "stdio",
+      "command": "repo-graph",
+      "args": ["serve"]
+    }
+  }
+}

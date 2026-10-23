@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "repo-graph": {
+      "command": "repo-graph",
+      "args": ["serve"]
+    }
+  }
+}

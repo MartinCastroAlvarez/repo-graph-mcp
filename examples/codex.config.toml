@@ -1,0 +1,4 @@
+# Append to ~/.codex/config.toml (or run: codex mcp add repo-graph -- repo-graph serve)
+[mcp_servers.repo-graph]
+command = "repo-graph"
+args = ["serve"]

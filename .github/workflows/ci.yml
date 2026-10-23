@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (ruff + mypy + bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction --all-extras
+      - name: ruff check
+        run: poetry run ruff check repo_graph_mcp tests benchmarks
+      - name: ruff format --check
+        run: poetry run ruff format --check repo_graph_mcp tests benchmarks
+      - name: mypy
+        run: poetry run mypy repo_graph_mcp
+      - name: bandit
+        run: poetry run bandit -c pyproject.toml -q -r repo_graph_mcp
+
+  audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --all-extras
+      - name: pip-audit
+        run: |
+          # Upgrade pip first so its own advisories don't fail the audit -
+          # pip is tooling, not a shipped dependency.
+          poetry run python -m pip install --upgrade -q pip
+          poetry run pip-audit
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction --all-extras
+      - name: Run pytest
+        run: poetry run pytest -q
+      - name: Token-savings benchmark (on this repository)
+        run: poetry run python benchmarks/token_savings.py --min-ratio 5 >> "$GITHUB_STEP_SUMMARY"
+
+  python-only:
+    name: Tests without the typescript extra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Run pytest (TypeScript tests skip)
+        run: poetry run pytest -q --cov-fail-under=70
